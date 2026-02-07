@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Long Video to Shorts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+  body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .container { background: rgba(0,0,0,0.85); padding: 30px; border-radius: 20px; width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+  h1 { font-size: 1.8rem; margin-bottom: 10px; text-align: center; color: #00f0ff; }
+  p { font-size: 0.95rem; color: #ccc; text-align: center; margin-bottom: 15px; }
+  input[type=file], input[type=number] { display: block; margin: 10px 0; width: 100%; padding: 10px; border-radius: 10px; border: none; font-size: 1rem; }
+  button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
+  .upload-btn { background: linear-gradient(90deg, #4f46e5, #3b82f6); color: white; }
+  .upload-btn:hover { transform: scale(1.02); }
+  .generate-btn { background: linear-gradient(90deg, #10b981, #06b6d4); color: white; }
+  .generate-btn:disabled { background: #065f46; cursor: not-allowed; opacity: 0.7; }
+  .progress-bar { height: 8px; background: #06b6d4; border-radius: 4px; width: 0%; margin-top: 10px; transition: width 0.2s; }
+  .clips { margin-top: 20px; max-height: 320px; overflow-y: auto; }
+  .clip { background: #1f2937; padding: 12px; border-radius: 14px; margin-bottom: 12px; transition: 0.2s; }
+  .clip:hover { transform: scale(1.02); background: #374151; }
+  video { width: 100%; border-radius: 10px; margin-top: 5px; }
+  .info { margin-bottom: 10px; color: #9ca3af; font-size: 0.9rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ Long Video → Shorts</h1>
+  <p>Upload a video and select number of clips and seconds per clip. Watch progress in real-time!</p>
+  <input type="file" id="videoInput" accept="video/*">
+  <div class="info" id="videoInfo">No video uploaded</div>
+  <input type="number" id="numClips" placeholder="Number of clips (default 5)" min="1">
+  <input type="number" id="clipSeconds" placeholder="Seconds per clip (default 60)" min="1">
+  <button class="generate-btn" id="generateBtn" disabled>Generate Shorts</button>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="clips" id="clipsContainer"></div>
+</div>
+<script>
+  const videoInput = document.getElementById('videoInput');
+  const generateBtn = document.getElementById('generateBtn');
+  const progressBar = document.getElementById('progressBar');
+  const clipsContainer = document.getElementById('clipsContainer');
+  const videoInfo = document.getElementById('videoInfo');
+  const numClipsInput = document.getElementById('numClips');
+  const clipSecondsInput = document.getElementById('clipSeconds');
+
+  let videoFile = null;
+
+  videoInput.addEventListener('change', (e) => {
+    videoFile = e.target.files[0];
+    if(videoFile){
+      videoInfo.textContent = `Uploaded: ${videoFile.name} (${Math.round(videoFile.size / 1024 / 1024)} MB)`;
+      generateBtn.disabled = false;
+      clipsContainer.innerHTML = '';
+      progressBar.style.width = '0%';
+    } else {
+      videoInfo.textContent = 'No video uploaded';
+      generateBtn.disabled = true;
+    }
+  });
+
+  generateBtn.addEventListener('click', async () => {
+    const numClips = parseInt(numClipsInput.value) || 5;
+    const clipSeconds = parseInt(clipSecondsInput.value) || 60;
+
+    if (!videoFile) return;
+    generateBtn.disabled = true;
+    clipsContainer.innerHTML = '';
+
+    for (let i = 0; i < numClips; i++) {
+      await new Promise(r => setTimeout(r, 80)); // simulate fast processing
+      const clipDiv = document.createElement('div');
+      clipDiv.className = 'clip';
+      clipDiv.innerHTML = `<p>Short #${i+1} (${clipSeconds}s)</p><video src="${URL.createObjectURL(videoFile)}" controls></video>`;
+      clipsContainer.appendChild(clipDiv);
+      progressBar.style.width = `${((i+1)/numClips)*100}%`;
+    }
+
+    generateBtn.disabled = false;
+  });
+</script>
+</body>
+</html>
